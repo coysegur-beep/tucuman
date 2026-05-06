@@ -1,0 +1,43 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import HeaderBanner from "~/components/HeaderBanner.astro";
+import EditionStrip from "~/components/EditionStrip.astro";
+import NavBar from "~/components/NavBar.astro";
+import MegaMenu from "~/components/MegaMenu.astro";
+import CoverStory from "~/components/CoverStory.astro";
+import FeaturedGrid from "~/components/FeaturedGrid.astro";
+import Ticker from "~/components/Ticker.astro";
+import WhatMatters from "~/components/WhatMatters.astro";
+import OpinionSection from "~/components/OpinionSection.astro";
+import Newsletter from "~/components/Newsletter.astro";
+import Footer from "~/components/Footer.astro";
+import {
+  getCoverDelDia,
+  getDestacadasHoy,
+  getFeaturedGrid,
+  getOpinionColumns,
+} from "~/data/sample-articles";
+import { SAMPLE_TODAY } from "~/lib/now";
+
+const cover = getCoverDelDia();
+const featured = getFeaturedGrid(5);
+const destacadas = getDestacadasHoy(3);
+const opiniones = getOpinionColumns(3);
+---
+
+<BaseLayout
+  title="El Tucumán"
+  description="Periodismo regional con voz propia — diario digital de Tucumán, Argentina."
+>
+  <HeaderBanner date={SAMPLE_TODAY} />
+  <EditionStrip cover={cover} />
+  <NavBar />
+  <MegaMenu />
+  <CoverStory article={cover} />
+  <FeaturedGrid articles={featured} />
+  <Ticker />
+  <WhatMatters articles={destacadas} />
+  <OpinionSection columns={opiniones} />
+  <Newsletter />
+  <Footer />
+</BaseLayout>

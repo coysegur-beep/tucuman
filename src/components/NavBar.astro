@@ -1,0 +1,35 @@
+---
+const SECTIONS = [
+  { label: "Política", href: "/politica" },
+  { label: "Economía", href: "/economia" },
+  { label: "Sociedad", href: "/sociedad" },
+  { label: "Cultura", href: "/cultura" },
+  { label: "Deportes", href: "/deportes" },
+  { label: "Agro", href: "/agro" },
+  { label: "Espectáculos", href: "/espectaculos" },
+  { label: "Mundo", href: "/mundo" },
+];
+---
+
+<nav aria-label="Secciones" class="border-b border-black/10 bg-white">
+  <div
+    class="overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+  >
+    <ul
+      class="mx-auto flex w-max items-center gap-x-7 px-6 py-3 whitespace-nowrap lg:gap-x-8"
+    >
+      {
+        SECTIONS.map((s) => (
+          <li>
+            <a
+              href={s.href}
+              class="text-[13px] font-medium tracking-wide text-ink decoration-carmin decoration-2 underline-offset-[6px] transition hover:text-carmin hover:underline"
+            >
+              {s.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</nav>

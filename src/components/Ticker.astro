@@ -1,0 +1,49 @@
+---
+interface TickerItem {
+  label: string;
+  value: string;
+  delta?: string;
+  direction?: "up" | "down" | "flat";
+}
+
+const ITEMS: TickerItem[] = [
+  { label: "Dólar oficial", value: "$1.143", delta: "+0,2%", direction: "up" },
+  { label: "Dólar blue", value: "$1.350", delta: "+1,1%", direction: "up" },
+  { label: "IPC mensual", value: "4,2%", delta: "−0,3 pp", direction: "down" },
+  { label: "Riesgo país", value: "821", delta: "+12", direction: "up" },
+];
+---
+
+<aside
+  aria-label="Indicadores económicos del día"
+  class="border-y border-black/10 bg-white"
+>
+  <div
+    class="mx-auto flex max-w-[1400px] items-center gap-x-10 gap-y-2 overflow-x-auto px-6 py-3"
+  >
+    {
+      ITEMS.map((item) => (
+        <div class="flex flex-shrink-0 items-baseline gap-2">
+          <span class="text-[10px] font-medium uppercase tracking-[0.2em] text-carbon/55">
+            {item.label}
+          </span>
+          <span class="text-[13px] font-medium tabular-nums text-ink">
+            {item.value}
+          </span>
+          {item.delta && (
+            <span
+              class:list={[
+                "text-[11px] tabular-nums",
+                item.direction === "up" && "text-cat-deportes",
+                item.direction === "down" && "text-carmin",
+                item.direction === "flat" && "text-carbon/60",
+              ]}
+            >
+              {item.delta}
+            </span>
+          )}
+        </div>
+      ))
+    }
+  </div>
+</aside>

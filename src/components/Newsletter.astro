@@ -1,0 +1,56 @@
+---
+---
+
+<section
+  id="newsletter"
+  class="bg-ink py-16 text-white sm:py-20"
+  aria-labelledby="newsletter-heading"
+>
+  <div class="mx-auto max-w-2xl px-6 text-center">
+    <p class="text-[11px] font-medium uppercase tracking-[0.22em] text-carmin">
+      Newsletter diario
+    </p>
+
+    <h2
+      id="newsletter-heading"
+      class="mt-4 font-serif text-[32px] leading-[1.15] sm:text-[40px]"
+    >
+      Empezá tu día con la edición de El Tucumán en el inbox.
+    </h2>
+
+    <p class="mt-5 text-[15px] leading-relaxed text-white/65">
+      Cada mañana, las 5 notas que importan en Tucumán y el NOA. Lectura en
+      seis minutos. Gratis, sin spam.
+    </p>
+
+    <form
+      class="mt-9 flex flex-col gap-3 sm:flex-row sm:gap-2"
+      action="/api/newsletter"
+      method="post"
+    >
+      <label for="newsletter-email" class="sr-only">Tu correo</label>
+      <input
+        id="newsletter-email"
+        name="email"
+        type="email"
+        required
+        placeholder="tu@correo.com"
+        autocomplete="email"
+        class="flex-1 rounded-sm border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/35 focus:border-carmin focus:outline-none"
+      />
+      <button
+        type="submit"
+        class="rounded-sm bg-carmin px-6 py-3 text-[12px] font-medium uppercase tracking-[0.18em] text-white transition hover:bg-carmin-dark"
+      >
+        Suscribirme
+      </button>
+    </form>
+
+    <p class="mt-5 text-[11px] text-white/40">
+      Al suscribirte aceptás nuestra
+      <a class="underline transition hover:text-white" href="/legal/privacidad">
+        política de privacidad
+      </a>.
+    </p>
+  </div>
+</section>

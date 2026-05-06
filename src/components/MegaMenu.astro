@@ -1,0 +1,159 @@
+---
+interface MenuLink {
+  label: string;
+  href: string;
+}
+
+interface MenuColumn {
+  label: string;
+  links: MenuLink[];
+}
+
+const COLUMNS: MenuColumn[] = [
+  {
+    label: "Secciones",
+    links: [
+      { label: "Política", href: "/politica" },
+      { label: "Economía", href: "/economia" },
+      { label: "Sociedad", href: "/sociedad" },
+      { label: "Cultura", href: "/cultura" },
+      { label: "Deportes", href: "/deportes" },
+      { label: "Agro", href: "/agro" },
+      { label: "Espectáculos", href: "/espectaculos" },
+      { label: "Mundo", href: "/mundo" },
+    ],
+  },
+  {
+    label: "Especiales",
+    links: [
+      { label: "Investigaciones", href: "/especiales/investigaciones" },
+      { label: "Elecciones 2027", href: "/especiales/elecciones-2027" },
+      { label: "Crónicas", href: "/especiales/cronicas" },
+      { label: "Datos abiertos", href: "/especiales/datos" },
+    ],
+  },
+  {
+    label: "Multimedia",
+    links: [
+      { label: "Videos", href: "/multimedia/videos" },
+      { label: "Podcast", href: "/multimedia/podcast" },
+      { label: "Fotografía", href: "/multimedia/fotografia" },
+      { label: "Newsletters", href: "/newsletters" },
+    ],
+  },
+  {
+    label: "Compañía",
+    links: [
+      { label: "Sobre El Tucumán", href: "/institucional/sobre" },
+      { label: "Equipo editorial", href: "/institucional/equipo" },
+      { label: "Anunciar con nosotros", href: "/institucional/publicidad" },
+      { label: "Contacto", href: "/institucional/contacto" },
+    ],
+  },
+];
+---
+
+<div
+  data-menu-backdrop
+  hidden
+  aria-hidden="true"
+  class="fixed inset-0 z-40 bg-ink/55 md:hidden"
+>
+</div>
+
+<div
+  id="mega-menu"
+  data-menu-panel
+  hidden
+  role="dialog"
+  aria-modal="true"
+  aria-label="Menú principal"
+  class="bg-bone max-md:fixed max-md:inset-y-0 max-md:right-0 max-md:z-50 max-md:w-[88%] max-md:max-w-sm max-md:overflow-y-auto max-md:shadow-2xl md:border-b md:border-black/10 md:shadow-[0_8px_24px_-12px_rgba(0,0,0,0.18)]"
+>
+  <div class="relative mx-auto max-w-[1400px] px-6 py-8 md:py-9">
+    <button
+      type="button"
+      data-menu-close
+      aria-label="Cerrar menú"
+      class="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full text-carbon transition hover:bg-black/5 hover:text-ink"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+        <line x1="6" y1="18" x2="18" y2="6"></line>
+      </svg>
+    </button>
+
+    <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        COLUMNS.map((col) => (
+          <div>
+            <p class="mb-3 text-[10px] font-medium uppercase tracking-[0.22em] text-carmin">
+              {col.label}
+            </p>
+            <ul class="space-y-2">
+              {col.links.map((link) => (
+                <li>
+                  <a
+                    href={link.href}
+                    class="text-sm text-carbon transition hover:text-ink"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</div>
+
+<script>
+  const panel = document.querySelector<HTMLElement>("[data-menu-panel]");
+  const backdrop = document.querySelector<HTMLElement>("[data-menu-backdrop]");
+  const toggles = document.querySelectorAll<HTMLElement>("[data-menu-toggle]");
+  const closers = document.querySelectorAll<HTMLElement>("[data-menu-close]");
+  const menuLinks =
+    panel?.querySelectorAll<HTMLAnchorElement>("a[href]") ?? [];
+
+  function setOpen(open: boolean): void {
+    if (!panel) return;
+    if (open) {
+      panel.removeAttribute("hidden");
+      backdrop?.removeAttribute("hidden");
+      document.body.style.overflow = "hidden";
+    } else {
+      panel.setAttribute("hidden", "");
+      backdrop?.setAttribute("hidden", "");
+      document.body.style.overflow = "";
+    }
+    toggles.forEach((t) => t.setAttribute("aria-expanded", String(open)));
+  }
+
+  toggles.forEach((t) =>
+    t.addEventListener("click", () => {
+      setOpen(panel?.hasAttribute("hidden") ?? true);
+    }),
+  );
+  closers.forEach((c) => c.addEventListener("click", () => setOpen(false)));
+  backdrop?.addEventListener("click", () => setOpen(false));
+  menuLinks.forEach((a) => a.addEventListener("click", () => setOpen(false)));
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && panel && !panel.hasAttribute("hidden")) {
+      setOpen(false);
+    }
+  });
+</script>
