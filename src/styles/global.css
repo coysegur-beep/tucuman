@@ -48,3 +48,68 @@
     color: inherit;
   }
 }
+
+/* Article body — applied to the rendered HTML content of a note.
+   Use `.article-body--news` modifier to enable the drop cap on the first
+   paragraph (skip it on `.article-body--opinion`/columns). */
+.article-body {
+  font-size: 18px;
+  line-height: 1.75;
+  color: var(--color-carbon);
+}
+
+.article-body p {
+  margin-bottom: 1.75rem;
+}
+
+.article-body em {
+  font-style: italic;
+}
+
+.article-body strong {
+  font-weight: 500;
+  color: var(--color-ink);
+}
+
+.article-body h2 {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--color-carbon);
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  letter-spacing: -0.01em;
+}
+
+.article-body blockquote {
+  border-left: 3px solid var(--color-carmin);
+  padding-left: 1.5rem;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 22px;
+  line-height: 1.4;
+  margin-block: 2rem;
+  color: var(--color-ink);
+}
+
+/* Si el contenido del blockquote viene envuelto en <p>, sacarle el mb del p
+   para que sea el blockquote el que controle el espaciado vertical. */
+.article-body blockquote p {
+  margin-bottom: 0;
+}
+
+.article-body--news > p:first-of-type::first-letter {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 64px;
+  line-height: 0.9;
+  float: left;
+  margin: 0.25rem 0.75rem 0 0;
+  color: var(--color-carmin);
+}
+
+@media (max-width: 768px) {
+  .article-body--news > p:first-of-type::first-letter {
+    font-size: 48px;
+  }
+}

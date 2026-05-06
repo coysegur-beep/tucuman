@@ -1,0 +1,12 @@
+# El Tucumán — robots.txt
+User-agent: *
+Allow: /
+
+# Páginas de búsqueda no se indexan (resultados volátiles, low-content)
+Disallow: /buscar
+Disallow: /buscar?
+
+# Sitemap general (lo emite @astrojs/sitemap en build con index)
+Sitemap: https://eltucuman.com/sitemap-index.xml
+# Sitemap específico Google News (últimas 48 h, sin opinión)
+Sitemap: https://eltucuman.com/sitemap-news.xml

@@ -1,0 +1,47 @@
+---
+import type { Category } from "~/lib/types";
+
+interface Props {
+  category: Category;
+  /** Tamaños predefinidos. `xs` = pill chico para cards medianas, `sm` = default, `md` = sobre fotos hero. */
+  size?: "xs" | "sm" | "md";
+  /** Renderizar como link clickeable a la sección. */
+  asLink?: boolean;
+  class?: string;
+}
+
+const {
+  category,
+  size = "sm",
+  asLink = false,
+  class: extraClass = "",
+} = Astro.props;
+
+const sizeClass = {
+  xs: "px-2 py-0.5 text-[9px] tracking-[0.22em]",
+  sm: "px-2.5 py-1 text-[10px] tracking-[0.22em]",
+  md: "px-3 py-1.5 text-[11px] tracking-[0.22em]",
+}[size];
+
+const baseClass =
+  "inline-block font-medium uppercase text-white whitespace-nowrap";
+---
+
+{
+  asLink ? (
+    <a
+      href={`/${category.slug}`}
+      class:list={[baseClass, sizeClass, "transition hover:opacity-90", extraClass]}
+      style={`background:${category.colorHex}`}
+    >
+      {category.nombre}
+    </a>
+  ) : (
+    <span
+      class:list={[baseClass, sizeClass, extraClass]}
+      style={`background:${category.colorHex}`}
+    >
+      {category.nombre}
+    </span>
+  )
+}

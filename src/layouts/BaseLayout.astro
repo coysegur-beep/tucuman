@@ -1,51 +1,98 @@
 ---
 import "~/styles/global.css";
+import {
+  SEO_CONSTANTS,
+  absoluteUrl,
+  buildOgTags,
+  buildTwitterTags,
+  getCanonicalUrl,
+  safeJsonLd,
+  type ArticleMeta,
+} from "~/lib/seo";
+
+type SchemaJsonLd = Record<string, unknown>;
 
 interface Props {
   title?: string;
   description?: string;
-  image?: string;
+  /** URL canónica completa. Si no se pasa, se calcula desde Astro.url. */
   canonical?: string;
+  /** Imagen para OG/Twitter. Si no se pasa, usa /og-default.jpg. */
+  image?: string;
+  /** "website" (default) o "article". */
+  ogType?: "website" | "article";
+  /** Metadata adicional para og:article:* (solo si ogType="article"). */
+  articleMeta?: ArticleMeta;
+  /** Handle de Twitter del autor (ej. "@marinachocobar"). */
+  twitterCreator?: string;
+  /** Contenido de meta robots (default "index, follow"). */
+  robots?: string;
+  /** Uno o varios objetos JSON-LD a embeber. */
+  schema?: SchemaJsonLd | SchemaJsonLd[];
 }
 
-const SITE_NAME = "El Tucumán";
-const SITE_URL = import.meta.env.PUBLIC_SITE_URL ?? "https://eltucuman.com";
-
 const {
-  title = SITE_NAME,
-  description = "Periodismo regional con voz propia",
-  image = `${SITE_URL}/og-default.jpg`,
-  canonical = new URL(Astro.url.pathname, SITE_URL).toString(),
+  title,
+  description = SEO_CONSTANTS.SITE_TAGLINE,
+  canonical,
+  image,
+  ogType = "website",
+  articleMeta,
+  twitterCreator,
+  robots = "index, follow",
+  schema,
 } = Astro.props;
 
-const fullTitle = title === SITE_NAME ? title : `${title} · ${SITE_NAME}`;
+const finalTitle = title
+  ? title === SEO_CONSTANTS.SITE_NAME
+    ? title
+    : `${title} · ${SEO_CONSTANTS.SITE_NAME}`
+  : SEO_CONSTANTS.SITE_NAME;
+
+const finalCanonical = canonical ?? getCanonicalUrl(Astro.url.pathname);
+const finalImage = image ?? absoluteUrl("/og-default.jpg");
+
+const ogTags = buildOgTags({
+  title: finalTitle,
+  description,
+  url: finalCanonical,
+  image: finalImage,
+  type: ogType,
+  article: articleMeta,
+});
+
+const twitterTags = buildTwitterTags({
+  title: finalTitle,
+  description,
+  image: finalImage,
+  creator: twitterCreator,
+});
+
+const schemas: SchemaJsonLd[] = schema
+  ? Array.isArray(schema)
+    ? schema
+    : [schema]
+  : [];
 ---
 
 <!doctype html>
-<html lang="es-AR">
+<html lang={SEO_CONSTANTS.SITE_LANG}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
 
-    <title>{fullTitle}</title>
+    <title>{finalTitle}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonical} />
+    <meta name="robots" content={robots} />
+    <link rel="canonical" href={finalCanonical} />
 
-    <meta property="og:site_name" content={SITE_NAME} />
-    <meta property="og:locale" content="es_AR" />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content={fullTitle} />
-    <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonical} />
-    <meta property="og:image" content={image} />
+    {ogTags.map((t) => <meta property={t.property} content={t.content} />)}
+    {twitterTags.map((t) => <meta name={t.name} content={t.content} />)}
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={fullTitle} />
-    <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={image} />
-
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <link rel="alternate" type="application/rss+xml" title="El Tucumán — RSS" href="/feed.xml" />
+    <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -53,6 +100,8 @@ const fullTitle = title === SITE_NAME ? title : `${title} · ${SITE_NAME}`;
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Spectral:ital,wght@0,400;0,500;1,400;1,500&display=swap"
     />
+
+    {schemas.map((s) => <script type="application/ld+json" set:html={safeJsonLd(s)} />)}
 
     <slot name="head" />
   </head>

@@ -18,16 +18,20 @@ import {
   getOpinionColumns,
 } from "~/data/sample-articles";
 import { SAMPLE_TODAY } from "~/lib/now";
+import { buildOrganizationSchema } from "~/lib/seo";
 
 const cover = getCoverDelDia();
 const featured = getFeaturedGrid(5);
 const destacadas = getDestacadasHoy(3);
 const opiniones = getOpinionColumns(3);
+
+const schema = buildOrganizationSchema();
 ---
 
 <BaseLayout
   title="El Tucumán"
   description="Periodismo regional con voz propia — diario digital de Tucumán, Argentina."
+  schema={schema}
 >
   <HeaderBanner date={SAMPLE_TODAY} />
   <EditionStrip cover={cover} />

@@ -1,6 +1,7 @@
-import type { Article, ResolvedArticle } from "~/lib/types";
+import type { Article, CategorySlug, ResolvedArticle } from "~/lib/types";
 import { getCategory } from "~/lib/categories";
 import { getSampleAuthor } from "./sample-authors";
+import { ARTICLE_CONTENT } from "./sample-articles-content";
 
 /** Build an Unsplash CDN URL for the given photo id. */
 function unsplash(id: string, w = 1600, h = 900): string {
@@ -329,6 +330,7 @@ function resolve(a: Article): ResolvedArticle {
   const categoria = getCategory(a.categoriaSlug);
   return {
     ...a,
+    contenidoHtml: a.contenidoHtml ?? ARTICLE_CONTENT[a.slug],
     autor,
     categoria,
     url: `/${categoria.slug}/${a.slug}`,
@@ -382,4 +384,66 @@ export function getAllResolved(): ResolvedArticle[] {
 export function getArticleBySlug(slug: string): ResolvedArticle | undefined {
   const a = ALL.find((x) => x.slug === slug);
   return a ? resolve(a) : undefined;
+}
+
+/** Notas de una sección, ordenadas por fecha de publicación (más recientes primero). */
+export function getArticlesByCategory(slug: CategorySlug): ResolvedArticle[] {
+  return SAMPLE_ARTICLES.filter((a) => a.categoriaSlug === slug)
+    .sort(byPublishedDesc)
+    .map(resolve);
+}
+
+/** Todas las firmas de un autor (notas + columnas). */
+export function getArticlesByAuthor(slug: string): ResolvedArticle[] {
+  return ALL.filter((a) => a.autorSlug === slug)
+    .sort(byPublishedDesc)
+    .map(resolve);
+}
+
+/** Notas de la misma sección, excluyendo la nota actual. */
+export function getRelatedArticles(
+  article: { slug: string; categoriaSlug: CategorySlug },
+  limit = 3,
+): ResolvedArticle[] {
+  return SAMPLE_ARTICLES.filter(
+    (a) => a.categoriaSlug === article.categoriaSlug && a.slug !== article.slug,
+  )
+    .sort(byPublishedDesc)
+    .slice(0, limit)
+    .map(resolve);
+}
+
+/** Notas regulares (sin opinión) publicadas dentro de las últimas N horas — para sitemap-news.xml. */
+export function getNewsLastHours(
+  hours: number,
+  now: Date,
+): ResolvedArticle[] {
+  const cutoff = new Date(now.getTime() - hours * 3_600_000);
+  return SAMPLE_ARTICLES.filter(
+    (a) => new Date(a.fechaPublicacion) >= cutoff,
+  )
+    .sort(byPublishedDesc)
+    .map(resolve);
+}
+
+/** Mix de notas + columnas, ordenadas por fecha desc, para el feed RSS. */
+export function getRecentForFeed(limit = 50): ResolvedArticle[] {
+  return ALL.slice()
+    .sort(byPublishedDesc)
+    .slice(0, limit)
+    .map(resolve);
+}
+
+/** Búsqueda por substring sobre título + copete + kicker + tags. */
+export function searchArticles(query: string): ResolvedArticle[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+  return ALL.filter((a) => {
+    const haystack = [a.titulo, a.copete, a.kicker ?? "", ...a.tags]
+      .join(" ")
+      .toLowerCase();
+    return haystack.includes(q);
+  })
+    .sort(byPublishedDesc)
+    .map(resolve);
 }

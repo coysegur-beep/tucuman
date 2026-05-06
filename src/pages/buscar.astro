@@ -1,0 +1,111 @@
+---
+export const prerender = false;
+
+import PageLayout from "~/layouts/PageLayout.astro";
+import ArticleCard from "~/components/ArticleCard.astro";
+import { searchArticles } from "~/data/sample-articles";
+
+const q = (Astro.url.searchParams.get("q") ?? "").trim();
+const hasQuery = q.length > 0;
+const results = hasQuery ? searchArticles(q) : [];
+const hasResults = results.length > 0;
+
+const pageTitle = hasQuery ? `Buscar: ${q}` : "Buscar";
+const pageDescription = hasQuery
+  ? `Resultados para "${q}" en El Tucumán`
+  : "Buscar notas, columnas, autores y temas en El Tucumán.";
+---
+
+<PageLayout title={pageTitle} description={pageDescription} robots="noindex, follow">
+  <main class="bg-white">
+    <header class="bg-bone py-12 sm:py-16">
+      <div class="mx-auto max-w-3xl px-6">
+        <p class="text-[11px] font-medium uppercase tracking-[0.22em] text-carmin">
+          Búsqueda
+        </p>
+        <h1 class="mt-3 font-serif text-[36px] font-medium leading-[1.05] text-carbon sm:text-[44px]">
+          Buscar en El Tucumán
+        </h1>
+
+        <form
+          method="get"
+          action="/buscar"
+          role="search"
+          class="mt-8 flex flex-col gap-2 sm:flex-row"
+        >
+          <label for="q" class="sr-only">Término de búsqueda</label>
+          <input
+            id="q"
+            type="search"
+            name="q"
+            value={q}
+            placeholder="Buscar notas, autores, temas..."
+            autocomplete="off"
+            autofocus={!hasQuery}
+            class="flex-1 rounded-sm border border-black/15 bg-white px-4 py-3 text-base text-ink placeholder:text-carbon/45 focus:border-carmin focus:outline-none"
+          />
+          <button
+            type="submit"
+            class="rounded-sm bg-carmin px-6 py-3 text-[12px] font-medium uppercase tracking-[0.18em] text-white transition hover:bg-carmin-dark"
+          >
+            Buscar
+          </button>
+        </form>
+      </div>
+    </header>
+
+    <section class="mx-auto max-w-[1400px] px-6 py-14">
+      {
+        !hasQuery && (
+          <div class="py-16 text-center">
+            <p class="font-serif text-2xl text-ink">
+              Escribí algo para buscar en El Tucumán.
+            </p>
+            <p class="mt-3 text-sm text-carbon/65">
+              Probá con un nombre propio, un tema o el slug de una sección.
+            </p>
+          </div>
+        )
+      }
+
+      {
+        hasQuery && !hasResults && (
+          <div class="py-16 text-center">
+            <p class="font-serif text-2xl text-ink">
+              No encontramos resultados para “{q}”.
+            </p>
+            <p class="mt-3 text-sm text-carbon/65">
+              Probá con otro término o revisá la ortografía. También podés volver a la{" "}
+              <a href="/" class="text-carmin transition hover:text-carmin-dark">
+                portada
+              </a>
+              .
+            </p>
+          </div>
+        )
+      }
+
+      {
+        hasResults && (
+          <>
+            <p class="mb-8 text-[11px] font-medium uppercase tracking-[0.22em] text-carbon/55">
+              {results.length} {results.length === 1 ? "resultado" : "resultados"} para “{q}”
+            </p>
+            <div class="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+              {results.map((art) => (
+                <ArticleCard
+                  article={art}
+                  variant="card"
+                  showCopete
+                  showAuthor
+                  showTime
+                  imageClass="relative h-[180px] w-full shrink-0 overflow-hidden"
+                />
+              ))}
+            </div>
+          </>
+        )
+      }
+    </section>
+  </main>
+</PageLayout>

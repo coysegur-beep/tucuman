@@ -1,0 +1,107 @@
+---
+import type { ResolvedArticle } from "~/lib/types";
+import { formatRelative } from "~/lib/format";
+import { SAMPLE_TODAY } from "~/lib/now";
+import CategoryBadge from "./CategoryBadge.astro";
+
+type Variant = "hero" | "card" | "compact";
+
+interface Props {
+  article: ResolvedArticle;
+  /** `hero`: imagen llena con flex-1 (para FeaturedGrid hero). `card`: imagen fija arriba + texto. `compact`: row horizontal con thumbnail. */
+  variant?: Variant;
+  showCopete?: boolean;
+  showAuthor?: boolean;
+  showTime?: boolean;
+  /** Override del contenedor de imagen. Útil para alturas custom (ej. h-[130px]). */
+  imageClass?: string;
+  /** Override del título. Útil para tamaños custom (ej. text-[16px]). */
+  titleClass?: string;
+  /** Clases extra sobre `<article>`. */
+  class?: string;
+  /** Tamaño del CategoryBadge. */
+  badgeSize?: "xs" | "sm" | "md";
+  /** Loading hint para la imagen. */
+  loading?: "lazy" | "eager";
+}
+
+const {
+  article,
+  variant = "card",
+  showCopete = false,
+  showAuthor = true,
+  showTime = false,
+  imageClass,
+  titleClass,
+  class: extraClass = "",
+  badgeSize,
+  loading = "lazy",
+} = Astro.props;
+
+const isHero = variant === "hero";
+const isCompact = variant === "compact";
+
+const wrapperClass = isCompact ? "" : "flex h-full flex-col";
+
+const defaultImageClass = isHero
+  ? "relative h-[240px] overflow-hidden md:h-auto md:flex-1 md:min-h-0"
+  : isCompact
+    ? "relative h-[80px] w-[120px] shrink-0 overflow-hidden"
+    : "relative h-[180px] shrink-0 overflow-hidden";
+
+const defaultTitleClass = isHero
+  ? "mt-3 font-serif text-[26px] leading-[1.15] text-ink transition group-hover:text-carmin sm:text-[30px]"
+  : isCompact
+    ? "font-serif text-[15px] leading-[1.25] text-ink transition group-hover:text-carmin"
+    : "mt-3 font-serif text-[18px] leading-[1.2] text-ink transition group-hover:text-carmin";
+
+const finalImageClass = imageClass ?? defaultImageClass;
+const finalTitleClass = titleClass ?? defaultTitleClass;
+const finalBadgeSize = badgeSize ?? (isHero ? "sm" : "xs");
+
+const time = formatRelative(article.fechaPublicacion, SAMPLE_TODAY);
+const showMeta = showAuthor || showTime;
+---
+
+<article class:list={["group", extraClass]}>
+  <a href={article.url} class:list={["block cursor-pointer", wrapperClass, isCompact && "flex gap-4"]}>
+    <div class={finalImageClass}>
+      <img
+        src={article.imagenPrincipal.url}
+        alt={article.imagenPrincipal.alt}
+        loading={loading}
+        width={isHero ? 1600 : isCompact ? 240 : 800}
+        height={isHero ? 900 : isCompact ? 160 : 500}
+        class={
+          isHero
+            ? "absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:opacity-85"
+            : "h-full w-full object-cover transition duration-300 group-hover:opacity-85"
+        }
+      />
+    </div>
+
+    <div class:list={[isHero ? "shrink-0 pt-4" : isCompact ? "min-w-0 flex-1" : "pt-3"]}>
+      <CategoryBadge category={article.categoria} size={finalBadgeSize} />
+
+      <h3 class={finalTitleClass}>{article.titulo}</h3>
+
+      {
+        showCopete && (
+          <p class="mt-2 text-sm leading-relaxed text-carbon/75 line-clamp-3">
+            {article.copete}
+          </p>
+        )
+      }
+
+      {
+        showMeta && (
+          <p class="mt-3 text-[10px] font-medium uppercase tracking-[0.2em] text-carbon/55">
+            {showAuthor && (isHero ? `Por ${article.autor.nombre}` : article.autor.nombre)}
+            {showAuthor && showTime && " · "}
+            {showTime && time}
+          </p>
+        )
+      }
+    </div>
+  </a>
+</article>
