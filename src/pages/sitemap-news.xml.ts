@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { getNewsLastHours } from "~/data/sample-articles";
+import { getNewsLastHours } from "~/lib/articles";
 import { SAMPLE_TODAY } from "~/lib/now";
 import { SEO_CONSTANTS, absoluteUrl, escapeXml } from "~/lib/seo";
 
@@ -10,9 +10,9 @@ import { SEO_CONSTANTS, absoluteUrl, escapeXml } from "~/lib/seo";
  * el demo siempre muestre el set completo de notas. En Fase 5 (Sanity) se
  * cambia por `new Date()` y el filtro de 48 h pasa a ser real.
  */
-export const GET: APIRoute = () => {
+export const GET: APIRoute = async () => {
   const now = SAMPLE_TODAY;
-  const articles = getNewsLastHours(48, now);
+  const articles = await getNewsLastHours(48, now);
 
   const urlEntries = articles
     .map((a) => {

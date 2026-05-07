@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { getRecentForFeed } from "~/data/sample-articles";
+import { getRecentForFeed } from "~/lib/articles";
 import { SAMPLE_TODAY } from "~/lib/now";
 import {
   SEO_CONSTANTS,
@@ -16,8 +16,8 @@ import {
  * para mejor compatibilidad con readers modernos. `lastBuildDate` se ancla a
  * SAMPLE_TODAY mientras usamos sample data.
  */
-export const GET: APIRoute = () => {
-  const articles = getRecentForFeed(50);
+export const GET: APIRoute = async () => {
+  const articles = await getRecentForFeed(50);
   const lastBuild = toRfc822(SAMPLE_TODAY.toISOString());
   const feedUrl = absoluteUrl("/feed.xml");
 

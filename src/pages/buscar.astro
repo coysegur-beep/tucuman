@@ -3,11 +3,11 @@ export const prerender = false;
 
 import PageLayout from "~/layouts/PageLayout.astro";
 import ArticleCard from "~/components/ArticleCard.astro";
-import { searchArticles } from "~/data/sample-articles";
+import { searchArticles } from "~/lib/articles";
 
 const q = (Astro.url.searchParams.get("q") ?? "").trim();
 const hasQuery = q.length > 0;
-const results = hasQuery ? searchArticles(q) : [];
+const results = hasQuery ? await searchArticles(q) : [];
 const hasResults = results.length > 0;
 
 const pageTitle = hasQuery ? `Buscar: ${q}` : "Buscar";

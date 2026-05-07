@@ -2,17 +2,22 @@
 import type { GetStaticPaths } from "astro";
 import PageLayout from "~/layouts/PageLayout.astro";
 import ArticleCard from "~/components/ArticleCard.astro";
-import { SAMPLE_AUTHORS, getSampleAuthor } from "~/data/sample-authors";
-import { getArticlesByAuthor } from "~/data/sample-articles";
+import { getAllAuthors, getAuthorBySlug } from "~/lib/authors";
+import { getArticlesByAuthor } from "~/lib/articles";
+import { urlFor } from "~/lib/sanity";
 import { absoluteUrl, buildPersonSchema } from "~/lib/seo";
 
-export const getStaticPaths = (() => {
-  return SAMPLE_AUTHORS.map((a) => ({ params: { slug: a.slug } }));
+export const getStaticPaths = (async () => {
+  const authors = await getAllAuthors();
+  return authors.map((a) => ({ params: { slug: a.slug } }));
 }) satisfies GetStaticPaths;
 
 const { slug } = Astro.params;
-const author = getSampleAuthor(slug as string);
-const articles = getArticlesByAuthor(author.slug);
+const author = await getAuthorBySlug(slug as string);
+const articles = await getArticlesByAuthor(author.slug);
+
+const avatarLg = urlFor(author.foto, { preset: "avatar" });
+const avatarSm = urlFor(author.foto, { preset: "avatar-sm" });
 
 const schema = buildPersonSchema(author);
 const ogImage = absoluteUrl(author.foto);
@@ -51,10 +56,12 @@ const SOCIAL_LINKS = [
     <header class="bg-bone py-12 sm:py-16">
       <div class="mx-auto max-w-3xl px-6 text-center">
         <img
-          src={author.foto}
+          src={avatarLg}
+          srcset={`${avatarSm} 160w, ${avatarLg} 240w`}
+          sizes="(max-width: 640px) 128px, 160px"
           alt={`Foto de ${author.nombre}`}
-          width="160"
-          height="160"
+          width="240"
+          height="240"
           loading="eager"
           class="mx-auto h-32 w-32 rounded-full object-cover ring-1 ring-black/5 sm:h-40 sm:w-40"
         />

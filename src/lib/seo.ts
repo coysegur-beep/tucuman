@@ -37,12 +37,20 @@ export function getCanonicalUrl(pathname: string): string {
   return absoluteUrl(pathname);
 }
 
-/** Reescribe una URL de Unsplash a 1200×630 para OG/Twitter cards. */
+/** Reescribe una URL de imagen a 1200×630 para OG/Twitter cards.
+ * Soporta `cdn.sanity.io` (Fase 5+) y `images.unsplash.com` (sample data). */
 export function ogImageFromArticle(rawUrl: string): string {
   if (!rawUrl) return absoluteUrl("/og-default.jpg");
+
+  if (rawUrl.includes("cdn.sanity.io")) {
+    const [base] = rawUrl.split("?");
+    return `${base}?w=1200&h=630&fit=crop&auto=format&q=80`;
+  }
+
   if (rawUrl.includes("images.unsplash.com")) {
     return rawUrl.replace(/w=\d+/, "w=1200").replace(/h=\d+/, "h=630");
   }
+
   return rawUrl;
 }
 

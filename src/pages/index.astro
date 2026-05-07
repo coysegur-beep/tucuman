@@ -16,14 +16,16 @@ import {
   getDestacadasHoy,
   getFeaturedGrid,
   getOpinionColumns,
-} from "~/data/sample-articles";
+} from "~/lib/articles";
 import { SAMPLE_TODAY } from "~/lib/now";
 import { buildOrganizationSchema } from "~/lib/seo";
 
-const cover = getCoverDelDia();
-const featured = getFeaturedGrid(5);
-const destacadas = getDestacadasHoy(3);
-const opiniones = getOpinionColumns(3);
+const [cover, featured, destacadas, opiniones] = await Promise.all([
+  getCoverDelDia(),
+  getFeaturedGrid(5),
+  getDestacadasHoy(3),
+  getOpinionColumns(3),
+]);
 
 const schema = buildOrganizationSchema();
 ---

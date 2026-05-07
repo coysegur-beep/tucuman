@@ -8,7 +8,7 @@ import {
   getAllResolved,
   getArticleBySlug,
   getRelatedArticles,
-} from "~/data/sample-articles";
+} from "~/lib/articles";
 import { formatLongDate, formatTime } from "~/lib/format";
 import {
   buildArticleSchema,
@@ -16,20 +16,21 @@ import {
   type ArticleMeta,
 } from "~/lib/seo";
 
-export const getStaticPaths = (() => {
-  return getAllResolved().map((art) => ({
+export const getStaticPaths = (async () => {
+  const all = await getAllResolved();
+  return all.map((art) => ({
     params: { categoria: art.categoria.slug, slug: art.slug },
   }));
 }) satisfies GetStaticPaths;
 
 const { categoria: categoriaSlug, slug } = Astro.params;
-const article = getArticleBySlug(slug as string);
+const article = await getArticleBySlug(slug as string);
 
 if (!article || article.categoria.slug !== categoriaSlug) {
   return Astro.redirect("/404");
 }
 
-const related = getRelatedArticles(article, 3);
+const related = await getRelatedArticles(article, 3);
 const fechaPub = formatLongDate(article.fechaPublicacion);
 const horaPub = formatTime(article.fechaPublicacion);
 const fechaUpd = article.fechaActualizacion

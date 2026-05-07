@@ -3,7 +3,7 @@ import type { GetStaticPaths } from "astro";
 import PageLayout from "~/layouts/PageLayout.astro";
 import ArticleCard from "~/components/ArticleCard.astro";
 import { CATEGORIES, getCategory } from "~/lib/categories";
-import { getArticlesByCategory } from "~/data/sample-articles";
+import { getArticlesByCategory } from "~/lib/articles";
 
 export const getStaticPaths = (() => {
   return CATEGORIES.map((c) => ({
@@ -13,7 +13,7 @@ export const getStaticPaths = (() => {
 
 const { categoria: categoriaSlug } = Astro.params;
 const categoria = getCategory(categoriaSlug as Parameters<typeof getCategory>[0]);
-const articles = getArticlesByCategory(categoria.slug);
+const articles = await getArticlesByCategory(categoria.slug);
 const [lead, ...rest] = articles;
 
 const description = `${categoria.descripcion} — todas las notas de la sección ${categoria.nombre} en El Tucumán.`;

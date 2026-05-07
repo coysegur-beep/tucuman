@@ -12,6 +12,9 @@ export default defineConfig({
     mode: "directory",
     imageService: "passthrough",
   }),
+  image: {
+    domains: ["cdn.sanity.io", "images.unsplash.com"],
+  },
   integrations: [
     sitemap({
       filter: (page) => !page.includes("/buscar"),
