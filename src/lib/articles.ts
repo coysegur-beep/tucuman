@@ -237,10 +237,32 @@ export async function getAllResolved(): Promise<ResolvedArticle[]> {
   const raws = await groqFetch<RawArticle[]>(
     `*[_type=="article"] | order(fechaPublicacion desc)${CARD_PROJECTION}`,
   );
-  if (raws && raws.length > 0) return mapMany(raws);
+  const fromSanity = raws ? mapMany(raws) : [];
 
-  console.warn("[sanity] fallback to sample for: getAllResolved");
-  return sample.getAllResolved();
+  if (fromSanity.length === 0) {
+    console.warn("[sanity] fallback to sample for: getAllResolved");
+    return sample.getAllResolved();
+  }
+
+  // Modo merge transicional: mientras hay sample data co-existiendo con
+  // notas reales en Sanity, getStaticPaths necesita conocer AMBOS sets para
+  // que el build estático genere todos los detalles. Sin esto, las URLs de
+  // notas sample dan 404 en producción y Cloudflare cae al index.html.
+  // Cuando Sanity tenga todo el contenido, FALLBACK_TO_SAMPLE=false apaga
+  // este merge.
+  if (FALLBACK_TO_SAMPLE) {
+    const sanityUrls = new Set(fromSanity.map((a) => a.url));
+    const fromSample = sample
+      .getAllResolved()
+      .filter((a) => !sanityUrls.has(a.url));
+    if (fromSample.length > 0) {
+      console.warn(
+        `[sanity] getAllResolved: ${fromSanity.length} desde Sanity + ${fromSample.length} desde sample`,
+      );
+    }
+    return [...fromSanity, ...fromSample];
+  }
+  return fromSanity;
 }
 
 export async function getArticleBySlug(
