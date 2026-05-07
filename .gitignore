@@ -30,3 +30,7 @@ pnpm-debug.log*
 
 # claude
 .claude/
+
+# sanity studio
+studio/dist/
+studio/.sanity/
