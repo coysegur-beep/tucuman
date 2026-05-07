@@ -24,20 +24,53 @@ primera vez, corré `npx sanity login` antes.
 |---|---|
 | `npm run dev` | Studio local en `localhost:3333` con hot reload de schemas. |
 | `npm run build` | Bundle estático en `dist/`. |
-| `npm run deploy` | Deploya el Studio a `studio-tucuman.sanity.studio`. |
+| `npm run deploy` | Deploya el Studio a `eltucuman.sanity.studio`. |
 | `npm run seed` | Carga 8 categorías + 4 autores. Necesita `SANITY_WRITE_TOKEN` en `../.env`. |
 
-## Deploy
+## Studio en producción
+
+**URL pública**: <https://eltucuman.sanity.studio/>
+
+Acceso desde cualquier navegador (PC, celular, tablet) sin necesidad de
+clonar el repo ni levantar `npm run dev`. Login con la cuenta Sanity que
+tenga rol en el proyecto `11q5xsuh`.
+
+### Diferencia entre Studio local y Studio público
+
+| | Local (`npm run dev`) | Público (`eltucuman.sanity.studio`) |
+|---|---|---|
+| URL | `localhost:3333` | `https://eltucuman.sanity.studio/` |
+| Requisito | Repo clonado + Node 20+ | Solo navegador |
+| Schemas | Hot reload al editar `studio/schemas/*` | Versión congelada del último `npm run deploy` |
+| Caso de uso | Devs cambiando schemas, debugging, testeo de plugins | Editorial diaria, escritura desde mobile o tablet |
+| Datos | Mismo dataset `production` (no aislado) | Mismo dataset `production` (no aislado) |
+
+Importante: ambos apuntan al **mismo dataset** Sanity. Cualquier cambio
+publicado en el Studio público aparece también en el local y viceversa,
+porque la fuente de verdad es el dataset, no el bundle del Studio.
+
+### Re-deploy del Studio público
+
+Después de cambiar schemas, custom inputs o desk structure:
 
 ```bash
+cd studio
 npm run deploy
 ```
 
-URL pública: `studio-tucuman.sanity.studio`. La primera vez Sanity te pide
-elegir el hostname; está cableado a `studio-tucuman` en `sanity.cli.ts`.
+Lleva ~60-90 segundos (build + upload). El Studio público actualiza su
+bundle y los editores ven el cambio en su próximo refresh.
 
-> **Custom domain** (`studio.eltucuman.com`) requiere plan Growth ($99/mes).
-> Por ahora usamos el subdominio gratuito `*.sanity.studio`.
+### Invitar editores
+
+[sanity.io/manage/personal/project/11q5xsuh/members](https://www.sanity.io/manage/personal/project/11q5xsuh/members)
+→ **Invite member** → role **Editor**.
+
+**Free tier permite hasta 3 editores activos** (incluyendo el dueño del
+proyecto). Para más, hay que pasar al plan Growth ($99/mes).
+
+> **Custom domain** (`studio.eltucuman.com`) requiere plan Growth + DNS
+> setup. Por ahora usamos el subdominio gratuito `*.sanity.studio`.
 
 ## Crear una nota nueva
 

@@ -5,6 +5,8 @@ export default defineCliConfig({
     projectId: "11q5xsuh",
     dataset: "production",
   },
-  /** sanity deploy elige la URL `studio-tucuman.sanity.studio` la primera vez. */
-  studioHost: "studio-tucuman",
+  /** Hostname público del Studio. URL final: https://eltucuman.sanity.studio
+   * Si "eltucuman" ya está tomado por otro proyecto a nivel global, sanity deploy
+   * pide elegir otro hostname interactivamente. */
+  studioHost: "eltucuman",
 });
