@@ -42,14 +42,20 @@ export async function getBackend(): Promise<Backend> {
     backendCache = "sample";
     return "sample";
   }
+  // Contamos cualquier doc real (article OR author OR category) — un dataset
+  // con authors+categories del seed pero 0 articles igual debe usar Sanity
+  // como backend (los listados de articles caen a sample por la lógica de
+  // fallback per-query, pero los authors/categories reales se respetan).
   backendPromise = sanityClient
-    .fetch<number>(`count(*[_type=="article"])`)
+    .fetch<number>(
+      `count(*[_type in ["article","author","category"]])`,
+    )
     .then(
       (count): Backend => {
         const result: Backend = count > 0 ? "sanity" : "sample";
         if (result === "sample") {
           console.warn(
-            "[sanity] dataset has 0 articles — using sample data for this build",
+            "[sanity] dataset is empty — using sample data for this build",
           );
         }
         backendCache = result;
