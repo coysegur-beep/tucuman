@@ -1,3 +1,13 @@
 name = "eltucuman"
 compatibility_date = "2026-05-06"
 pages_build_output_dir = "./dist"
+
+# Build/runtime env vars. Cloudflare Pages las inyecta al `npm run build` y
+# al worker SSR. No son secretos (project IDs y dataset son publicos),
+# por eso quedan en git. Los tokens reales (cuando hagan falta) van por
+# Settings → Environment variables marcados como Encrypt.
+[vars]
+PUBLIC_SITE_URL = "https://eltucuman.com"
+SANITY_PROJECT_ID = "11q5xsuh"
+SANITY_DATASET = "production"
+SANITY_API_VERSION = "2024-03-15"
