@@ -62,7 +62,14 @@ export const article = defineType({
           description: 'Crédito y descripción. Ej: "Foto: Prensa Casa de Gobierno".',
         }),
       ],
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) =>
+        Rule.required().custom((value) => {
+          const v = value as { asset?: unknown } | undefined;
+          if (!v) return "La imagen principal es obligatoria.";
+          if (!v.asset)
+            return "Tenés que subir un archivo de imagen — no alcanza con escribir el alt.";
+          return true;
+        }),
     }),
     defineField({
       name: "autor",

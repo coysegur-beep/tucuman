@@ -116,10 +116,14 @@ interface RawArticle {
   esCoverDelDia?: boolean;
   tiempoLectura?: number;
   body?: unknown[];
-  imagenPrincipal: { url: string; alt: string; caption?: string };
+  imagenPrincipal: { url: string | null; alt: string | null; caption?: string };
   categoria: RawCategoria;
   autor: RawAutor;
 }
+
+/** Fallback que se usa cuando una nota se publicó en Sanity sin asset
+ * de imagen. Evita que el build estático rompa por una nota mal cargada. */
+const PLACEHOLDER_IMAGE = "/og-default.jpg";
 
 function mapSanityArticle(raw: RawArticle): ResolvedArticle {
   return {
@@ -127,7 +131,11 @@ function mapSanityArticle(raw: RawArticle): ResolvedArticle {
     titulo: raw.titulo,
     kicker: raw.kicker,
     copete: raw.copete,
-    imagenPrincipal: raw.imagenPrincipal,
+    imagenPrincipal: {
+      url: raw.imagenPrincipal?.url ?? PLACEHOLDER_IMAGE,
+      alt: raw.imagenPrincipal?.alt ?? raw.titulo,
+      caption: raw.imagenPrincipal?.caption,
+    },
     autorSlug: raw.autor.slug,
     categoriaSlug: raw.categoria.slug,
     tags: raw.tags ?? [],
@@ -142,7 +150,7 @@ function mapSanityArticle(raw: RawArticle): ResolvedArticle {
       nombre: raw.autor.nombre,
       cargo: raw.autor.cargo,
       bio: raw.autor.bio,
-      foto: raw.autor.foto,
+      foto: raw.autor.foto ?? "",
       redes: raw.autor.redes,
     },
     categoria: raw.categoria,
