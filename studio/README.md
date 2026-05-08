@@ -100,9 +100,57 @@ proyecto). Para más, hay que pasar al plan Growth ($99/mes).
    - **Tiempo de lectura**: se autocalcula del body (200 pal/min, mínimo 2).
      No editar.
 4. **Publish** (botón abajo a la derecha).
-5. El sitio se actualiza al próximo build del frontend
-   (`npm run build` desde la raíz del repo). En esta fase no hay rebuild
-   automático con webhook.
+5. **El sitio se actualiza solo en ~90 segundos** (Sanity webhook → Cloudflare
+   Pages rebuild). Ver sección "Auto-deploy con webhook" abajo.
+
+## Auto-deploy con webhook
+
+El flow para que cada publish en el Studio dispare automáticamente un build
+y deploy en `eltucuman.com`:
+
+```
+Studio Publish → Sanity webhook → Cloudflare deploy hook → CF rebuilds desde Git → eltucuman.com
+       0s                ~1s                  ~2s             clone+install+build  ~90s total
+```
+
+### Configuración (referencia, ya está armado)
+
+- **Sanity webhook**: en `sanity.io/manage → API → Webhooks`. Apunta a la URL
+  del deploy hook de Cloudflare. Triggers: Create + Update + Delete sobre
+  `_type in ["article","author","category"]`.
+- **Cloudflare deploy hook**: creado en `Pages → eltucuman → Settings → Deploy
+  hooks` (o vía API). Apunta al branch `main`. URL es secreta — quien la
+  tenga puede disparar builds.
+- **CF Pages config**: proyecto **Git-connected** sobre `coysegur-beep/tucuman`,
+  branch `main`. Build command `npm run build`, output `dist`. Env vars
+  públicas en `wrangler.toml [vars]`.
+
+### Si el sitio no se actualiza después de Publish
+
+1. **Sanity webhook attempts**: ir a `sanity.io/manage → API → Webhooks` →
+   click el webhook → tab Attempts. Cada Publish debería aparecer ahí con
+   status code 200. Si dice 500 o 404, revisar la URL del deploy hook.
+2. **Cloudflare deployments**: `dash.cloudflare.com → Workers & Pages →
+   eltucuman → Deployments`. Ver si llegó el build asociado al timestamp
+   del Publish. Si no llegó, el webhook no disparó.
+3. **Build log**: si el build aparece pero falla, abrir el deployment y leer
+   el build log. Errores típicos:
+   - `Build environment variables: (none found)` → falta `[vars]` en
+     `wrangler.toml`.
+   - Cualquier error de TypeScript/build → revisar últimos commits a `main`.
+
+### Regenerar el deploy hook (si se filtra)
+
+Si la URL del deploy hook se filtra (terminó en un screenshot, en logs
+públicos, etc.):
+
+1. CF Dashboard → eltucuman → Settings → Deploy hooks → **Delete** el hook
+   actual.
+2. Crear uno nuevo con el mismo nombre (`sanity-publish`).
+3. Sanity → Webhooks → editar el webhook → reemplazar la URL → Save.
+
+Hacerlo lo antes posible — mientras la URL vieja esté viva, cualquiera con
+ella puede disparar builds (consume minutos de build de tu cuota).
 
 ## Imágenes
 
@@ -130,8 +178,10 @@ Roles típicos:
 `npm run dev`.
 
 **El frontend no encuentra notas nuevas**
-→ El build de Astro no se reactiva automático. Después de publicar en
-Sanity, rebuildeá el frontend (`npm run build` en la raíz).
+→ El webhook debería rebuildear automáticamente en ~90s. Ver sección
+"Auto-deploy con webhook" para diagnosticar. Como fallback, podés correr
+`npm run build && npx wrangler pages deploy dist --project-name=eltucuman`
+desde la raíz del repo.
 
 **Validación: "Ya hay otra nota marcada como cover del día"**
 → Existe otra nota con `esCoverDelDia=true`. Usá la acción
